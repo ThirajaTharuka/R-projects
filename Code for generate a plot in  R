@@ -1,0 +1,61 @@
+# packages
+require(palmerpenguins)
+require(emmeans)
+require(multcomp)
+require(readxl)
+require(dplyr)
+require(multcompView)
+require(ggplot2)
+# import data sheet
+
+thu <- read_xlsx(choose.files())
+View(thu)
+attach(thu)
+# ANOVA 
+rc1 <- aov(phr ~ bl+da,thu)
+rc2 <- aov(br ~ bl+da,thu)
+rc3 <- aov(sgr ~ bl+da,thu)
+rc4 <- aov(tar ~ bl+da,thu)
+rc5 <- aov(ar ~ bl+da,thu)
+summary(rc1)
+summary(rc2)
+summary(rc3)
+summary(rc4)
+summary(rc5)
+# Turkey test
+TukeyHSD(rc1)
+mean1 <- emmeans(rc1,specs = c('bl','da'))
+cld1 <- cld(mean1,Letters = letters)
+View(cld1)
+save(cld1)
+TukeyHSD(rc2)
+mean2 <- emmeans(rc2,specs = c('bl','da'))
+cld2 <- cld(mean2,Letters = letters)
+View(cld2)
+TukeyHSD(rc3)
+mean3 <- emmeans(rc3,specs = c('bl','da'))
+cld3 <- cld(mean3,Letters = letters)
+View(cld3)
+TukeyHSD(rc4)
+mean4 <- emmeans(rc4,specs = c('bl','da'))
+cld4 <- cld(mean4,Letters = letters)
+View(cld4)
+TukeyHSD(rc5)
+mean5 <- emmeans(rc5,specs = c('bl','da'))
+cld5 <- cld(mean5,Letters = letters)
+View(cld5)
+
+# generating plot
+
+ggplot(data = cld1, aes(x=da,y=emmean,fill = bl))+
+  geom_col(position = 'dodge',linetype = 1,colour = 'black',linewidth = 0.5)+
+  geom_errorbar(aes(ymin=emmean-SE,ymax=emmean+SE),width=0.5,
+                linewidth = 0.8,colour='blue',
+                position = position_dodge(width = 0.9))+
+  geom_text(aes(label=.group),colour='black',vjust=-2,hjust=0.7,
+            position = position_dodge(width = 0.9))+
+  labs(title = 'pH variation',x='Days after making',y='pH')+
+  scale_fill_manual(values = c('magenta4','red','green'))+
+  labs(fill='Batch')+
+  scale_y_continuous(limits = c(0.0,5.0))+
+  theme_bw()
